@@ -13,5 +13,5 @@ O arquivo .obj do modelo 3D no formato da xícara foi obtido no site Free 3D. Di
 
 Para executar a aplicação, acesse a url: https://o-eduardo.github.io/abcg/screensaverxicara/
 
-Obs: Verifiquei que a execução da aplicação não esta ocorrendo no link acima. Uma mensagem "Downloading data..." esta sendo exibida. Seguem no erpositório o video da aplicação rodando no localhost.
+Segue também no repositório o video da aplicação rodando no localhost, faça o download do arquivo "videoAtividade2-screensaverxicara.mp4".
 
