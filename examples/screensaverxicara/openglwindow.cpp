@@ -190,7 +190,15 @@ void OpenGLWindow::paintUI() {
   //Incrementa o numero de triangulos para desenhar a xicara
   //if(n_trig >= 0 && n_trig < 59327) n_trig = n_trig + 2;
   //if(n_trig >= 59328) n_trig=0;
+{
+    ImGui::SetNextWindowPos(ImVec2(5, m_viewportHeight - 94));
+    ImGui::SetNextWindowSize(ImVec2(m_viewportWidth - 10, -1));
+    ImGui::Begin("Slider window", nullptr, ImGuiWindowFlags_NoDecoration);
 
+    
+
+    ImGui::End();
+  }
   n_trig = desenhou_xicara? n_trig+10 : n_trig-10;
 
   if(n_trig > m_indices.size() / 3) desenhou_xicara = false;
