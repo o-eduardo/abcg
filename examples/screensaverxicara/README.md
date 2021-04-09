@@ -12,3 +12,6 @@ Nos baseamos no fonte da atividade de estudos da aula 7.
 O arquivo .obj do modelo 3D no formato da xícara foi obtido no site Free 3D. Disponível em <https://free3d.com/3d-model/tea-mug-791329.html>. Acessado em 09/04/2021. 
 
 Para executar a aplicação, acesse a url: https://o-eduardo.github.io/abcg/screensaverxicara/
+
+Obs: Verifiquei que a execução da aplicação não esta ocorrendo no link acima. Uma mensagem "Downloading data..." esta sendo exibida. Seguem no erpositório o video da aplicação rodando no localhost.
+
