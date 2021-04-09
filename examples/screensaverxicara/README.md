@@ -5,7 +5,7 @@
 Objetivo: Desenvolvimento de uma aplicação com gráficos 3D.
 
 
-Na presente demonstração gráfica, temos um screen saver que realiza a renderização de uma xícara 3D, ao passo que após renderizar a xícara, o screen saver apaga a mesma gradativamente. O processo se retete continuamente.
+Na presente demonstração gráfica, temos um screen saver que realiza a renderização de uma xícara 3D, ao passo que após renderizar a xícara, o screen saver apaga a mesma gradativamente. O processo se repete continuamente.
 
 Nos baseamos no fonte da atividade de estudos da aula 7.
 
