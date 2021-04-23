@@ -1,6 +1,10 @@
 # Blender v2.77 (sub 0) OBJ File: 'Only_Spider_with_Animations_Export.blend'
 # www.blender.org
-mtllib Only_Spider_with_Animations_Export.mtl
+mtllib spider.mtl
+
+#
+# object spider
+#
 o Spider_Eyes_Spider.006
 v -2.600941 51.171219 -24.912411
 v -2.573352 51.707123 -24.662674
