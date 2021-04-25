@@ -23,15 +23,23 @@ class OpenGLWindow : public abcg::OpenGLWindow {
     int m_trianglesToDraw{};
     glm::mat4 m_modelMatrix{1.0f};
   };
-  
+  struct Satellite
+  {
+    Model m_model;
+    int m_trianglesToDraw{};
+    glm::mat4 m_modelMatrix{1.0f};
+  };
+
   Planet setPlanets[2];
+
+  Satellite setSatellites[2];
+
   unsigned long long int n_frame{1};
 
   int m_viewportWidth{};
   int m_viewportHeight{};
 
   Model m_model;
-  int m_trianglesToDraw{};
 
   TrackBall m_trackBallModel;
   TrackBall m_trackBallLight;
@@ -51,15 +59,10 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   glm::mat4 m_viewMatrix{1.0f};
   glm::mat4 m_projMatrix{1.0f};
 
-  // Shaders
-  std::vector<const char*> m_shaderNames{"texture", "blinnphong", "phong",
-                                         "gouraud", "normal",     "depth"};
-  std::vector<GLuint> m_programs;
-  int m_currentProgramIndex{};
+
 
   // Mapping mode
   // 0: triplanar; 1: cylindrical; 2: spherical; 3: from mesh
-  int m_mappingMode{};
 
   // Light and material properties
   glm::vec4 m_lightDir{-1.0f, -1.0f, -1.0f, 0.0f};

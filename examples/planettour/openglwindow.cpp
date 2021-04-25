@@ -63,15 +63,21 @@ void OpenGLWindow::initializeGL() {
 }
 
 void OpenGLWindow::loadAllModels() {
+  setSatellites[0].m_model.loadFromFile(getAssetsPath() + "satellite.obj");
+  setSatellites[0].m_model.loadDiffuseTexture(getAssetsPath() + "textures/satellite.jpg");
+  setSatellites[0].m_model.setupVAO(m_program);
+  setSatellites[0].m_trianglesToDraw = setSatellites[0].m_model.getNumTriangles();
+
+
   setPlanets[0].m_model.loadFromFile(getAssetsPath() + "mars.obj");
   setPlanets[0].m_model.loadDiffuseTexture(getAssetsPath() + "textures/mars.png");
   setPlanets[0].m_model.setupVAO(m_program);
   setPlanets[0].m_trianglesToDraw = setPlanets[0].m_model.getNumTriangles();
 
   setPlanets[1].m_model.loadFromFile(getAssetsPath() + "moon.obj");
-  setPlanets[1].m_model.loadDiffuseTexture(getAssetsPath() + "textures/moon_2.png");
+  setPlanets[1].m_model.loadDiffuseTexture(getAssetsPath() + "textures/moon.png");
   setPlanets[1].m_model.setupVAO(m_program);
-  setPlanets[1].m_trianglesToDraw = setPlanets[0].m_model.getNumTriangles();
+  setPlanets[1].m_trianglesToDraw = setPlanets[1].m_model.getNumTriangles();
   // Use material properties from the loaded model
   m_Ka = setPlanets[0].m_model.getKa();
   m_Kd = setPlanets[0].m_model.getKd();
@@ -138,7 +144,7 @@ void OpenGLWindow::paintGL() {
   // primeiro mplaneta
   setPlanets[0].m_modelMatrix = glm::mat4(1.0);
   setPlanets[0].m_modelMatrix = glm::translate(setPlanets[0].m_modelMatrix, glm::vec3(-0.75f, 0.0f, 0.0f));
-  setPlanets[0].m_modelMatrix = glm::rotate(setPlanets[0].m_modelMatrix, glm::radians(0.009f * n_frame), glm::vec3(0, 1, 0));
+  setPlanets[0].m_modelMatrix = glm::rotate(setPlanets[0].m_modelMatrix, glm::radians(0.02f * n_frame), glm::vec3(0, 1, 0));
   setPlanets[0].m_modelMatrix = glm::scale(setPlanets[0].m_modelMatrix, glm::vec3(0.70f));
 
   glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &setPlanets[0].m_modelMatrix[0][0]);
@@ -157,7 +163,7 @@ void OpenGLWindow::paintGL() {
 
   setPlanets[1].m_modelMatrix = glm::mat4(1.0);
   setPlanets[1].m_modelMatrix = glm::translate(setPlanets[1].m_modelMatrix, glm::vec3(-0.950f, 0.5f, 0.50f));
-  setPlanets[1].m_modelMatrix = glm::rotate(setPlanets[1].m_modelMatrix, glm::radians(0.003f * n_frame), glm::vec3(0, 1, 0));
+  setPlanets[1].m_modelMatrix = glm::rotate(setPlanets[1].m_modelMatrix, glm::radians(0.09f * n_frame), glm::vec3(0, 1, 0));
   setPlanets[1].m_modelMatrix = glm::scale(setPlanets[1].m_modelMatrix, glm::vec3(0.17));
   glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &setPlanets[1].m_modelMatrix[0][0]);
 
@@ -166,6 +172,23 @@ void OpenGLWindow::paintGL() {
   glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
 
   setPlanets[1].m_model.render(setPlanets[1].m_trianglesToDraw);
+
+
+  //Satelite
+  setSatellites[0].m_modelMatrix = glm::mat4(1.0);
+  setSatellites[0].m_modelMatrix = glm::translate(setSatellites[0].m_modelMatrix, glm::vec3(0.0f, -0.2f, -0.2f));
+  setSatellites[0].m_modelMatrix = glm::rotate(setSatellites[0].m_modelMatrix, glm::radians(0.01f * n_frame), glm::vec3(0, 1, 0));
+  setSatellites[0].m_modelMatrix = glm::scale(setSatellites[0].m_modelMatrix, glm::vec3(0.08));
+  glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &setSatellites[0].m_modelMatrix[0][0]);
+
+  modelViewMatrix = glm::mat3(m_camera.m_viewMatrix * setSatellites[0].m_modelMatrix);
+  normalMatrix = glm::inverseTranspose(modelViewMatrix);
+  glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
+
+  setSatellites[0].m_model.render(setSatellites[0].m_trianglesToDraw);
+
+
+  //ednd
   n_frame++;
   glUseProgram(0);
 
