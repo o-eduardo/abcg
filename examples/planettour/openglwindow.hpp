@@ -17,6 +17,16 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   void terminateGL() override;
 
  private:
+ struct Planet
+  {
+    Model m_model;
+    int m_trianglesToDraw{};
+    glm::mat4 m_modelMatrix{1.0f};
+  };
+  
+  Planet setPlanets[2];
+  unsigned long long int n_frame{1};
+
   int m_viewportWidth{};
   int m_viewportHeight{};
 
@@ -61,7 +71,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   glm::vec4 m_Ks;
   float m_shininess{};
 
-  void loadModel(std::string_view path);
+  void loadAllModels();
   void update();
 };
 

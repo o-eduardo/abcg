@@ -47,33 +47,36 @@ void OpenGLWindow::initializeGL() {
   glClearColor(0, 0, 0, 1);
   glEnable(GL_DEPTH_TEST);
 
-  // Create programs
-  for (const auto& name : m_shaderNames) {
-    auto path{getAssetsPath() + "shaders/" + name};
-    auto program{createProgramFromFile(path + ".vert", path + ".frag")};
-    m_programs.push_back(program);
-  }
+  auto path{getAssetsPath() + "shaders/texture"};
+  auto program{createProgramFromFile(path + ".vert", path + ".frag")};
+  m_program = program;
 
+  loadAllModels();
   // Load default model
-  loadModel(getAssetsPath() + "Mars 2K.obj");
-  m_mappingMode = 3;  // "From mesh" option
+  //loadModel(getAssetsPath() + "Mars 2K.obj");
+  //m_mappingMode = 3;  // "From mesh" option
 
   // Initial trackball spin
-  m_trackBallModel.setAxis(glm::normalize(glm::vec3(1, 1, 1)));
-  m_trackBallModel.setVelocity(0.0001f);
+  //m_trackBallModel.setAxis(glm::normalize(glm::vec3(1, 1, 1)));
+  //m_trackBallModel.setVelocity(0.0001f);
+
 }
 
-void OpenGLWindow::loadModel(std::string_view path) {
-  m_model.loadDiffuseTexture(getAssetsPath() + "maps/Diffuse_2K.png");
-  m_model.loadFromFile(path);
-  m_model.setupVAO(m_programs.at(m_currentProgramIndex));
-  m_trianglesToDraw = m_model.getNumTriangles();
+void OpenGLWindow::loadAllModels() {
+  setPlanets[0].m_model.loadFromFile(getAssetsPath() + "mars.obj");
+  setPlanets[0].m_model.loadDiffuseTexture(getAssetsPath() + "textures/mars.png");
+  setPlanets[0].m_model.setupVAO(m_program);
+  setPlanets[0].m_trianglesToDraw = setPlanets[0].m_model.getNumTriangles();
 
+  setPlanets[1].m_model.loadFromFile(getAssetsPath() + "moon.obj");
+  setPlanets[1].m_model.loadDiffuseTexture(getAssetsPath() + "textures/moon_2.png");
+  setPlanets[1].m_model.setupVAO(m_program);
+  setPlanets[1].m_trianglesToDraw = setPlanets[0].m_model.getNumTriangles();
   // Use material properties from the loaded model
-  m_Ka = m_model.getKa();
-  m_Kd = m_model.getKd();
-  m_Ks = m_model.getKs();
-  m_shininess = m_model.getShininess();
+  m_Ka = setPlanets[0].m_model.getKa();
+  m_Kd = setPlanets[0].m_model.getKd();
+  m_Ks = setPlanets[0].m_model.getKs();
+  m_shininess = 5.0f;
 }
 
 
@@ -82,26 +85,27 @@ void OpenGLWindow::paintGL() {
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glViewport(0, 0, m_viewportWidth, m_viewportHeight);
+  glUseProgram(m_program);
 
   // Use currently selected program
-  const auto program{m_programs.at(m_currentProgramIndex)};
-  glUseProgram(program);
+  //const auto program{m_programs.at(m_currentProgramIndex)};
 
   // Get location of uniform variables
-  GLint viewMatrixLoc{glGetUniformLocation(program, "viewMatrix")};
-  GLint projMatrixLoc{glGetUniformLocation(program, "projMatrix")};
-  GLint modelMatrixLoc{glGetUniformLocation(program, "modelMatrix")};
-  GLint normalMatrixLoc{glGetUniformLocation(program, "normalMatrix")};
-  GLint lightDirLoc{glGetUniformLocation(program, "lightDirWorldSpace")};
-  GLint shininessLoc{glGetUniformLocation(program, "shininess")};
-  GLint IaLoc{glGetUniformLocation(program, "Ia")};
-  GLint IdLoc{glGetUniformLocation(program, "Id")};
-  GLint IsLoc{glGetUniformLocation(program, "Is")};
-  GLint KaLoc{glGetUniformLocation(program, "Ka")};
-  GLint KdLoc{glGetUniformLocation(program, "Kd")};
-  GLint KsLoc{glGetUniformLocation(program, "Ks")};
-  GLint diffuseTexLoc{glGetUniformLocation(program, "diffuseTex")};
-  GLint mappingModeLoc{glGetUniformLocation(program, "mappingMode")};
+  GLint viewMatrixLoc{glGetUniformLocation(m_program, "viewMatrix")};
+  GLint projMatrixLoc{glGetUniformLocation(m_program, "projMatrix")};
+  GLint modelMatrixLoc{glGetUniformLocation(m_program, "modelMatrix")};
+  GLint normalMatrixLoc{glGetUniformLocation(m_program, "normalMatrix")};
+  GLint lightDirLoc{glGetUniformLocation(m_program, "lightDirWorldSpace")};
+  GLint shininessLoc{glGetUniformLocation(m_program, "shininess")};
+  GLint IaLoc{glGetUniformLocation(m_program, "Ia")};
+  GLint IdLoc{glGetUniformLocation(m_program, "Id")};
+  GLint IsLoc{glGetUniformLocation(m_program, "Is")};
+  GLint KaLoc{glGetUniformLocation(m_program, "Ka")};
+  GLint KdLoc{glGetUniformLocation(m_program, "Kd")};
+  GLint KsLoc{glGetUniformLocation(m_program, "Ks")};
+  GLint diffuseTexLoc{glGetUniformLocation(m_program, "diffuseTex")};
+  GLint normalTexLoc{glGetUniformLocation(m_program, "normalTex")};
+  GLint mappingModeLoc{glGetUniformLocation(m_program, "mappingMode")};
 
   // Set uniform variables used by every scene object
   glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, &m_viewMatrix[0][0]);
@@ -115,92 +119,85 @@ void OpenGLWindow::paintGL() {
 
 
   glUniform1i(diffuseTexLoc, 0);
-  glUniform1i(mappingModeLoc, m_mappingMode);
+  glUniform1i(normalTexLoc, 1);
+  glUniform1i(mappingModeLoc, 3);
 
-  auto lightDirRotated{m_trackBallLight.getRotation() * m_lightDir};
-  glUniform4fv(lightDirLoc, 1, &lightDirRotated.x);
+  glUniform4fv(lightDirLoc, 1, &m_lightDir.x);
   glUniform4fv(IaLoc, 1, &m_Ia.x);
   glUniform4fv(IdLoc, 1, &m_Id.x);
   glUniform4fv(IsLoc, 1, &m_Is.x);
 
+  float mat[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+  glUniform1f(shininessLoc, 5000.0f);
+  glUniform4fv(KaLoc, 1, mat);
+  glUniform4fv(KdLoc, 1, mat);
+  glUniform4fv(KsLoc, 1, mat);
 
 
 
-  // Set uniform variables of the current object
-  glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &m_modelMatrix[0][0]);
+  // primeiro mplaneta
+  setPlanets[0].m_modelMatrix = glm::mat4(1.0);
+  setPlanets[0].m_modelMatrix = glm::translate(setPlanets[0].m_modelMatrix, glm::vec3(-0.75f, 0.0f, 0.0f));
+  setPlanets[0].m_modelMatrix = glm::rotate(setPlanets[0].m_modelMatrix, glm::radians(0.009f * n_frame), glm::vec3(0, 1, 0));
+  setPlanets[0].m_modelMatrix = glm::scale(setPlanets[0].m_modelMatrix, glm::vec3(0.70f));
 
-  auto modelViewMatrix{glm::mat3(m_viewMatrix * m_modelMatrix)};
+  glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &setPlanets[0].m_modelMatrix[0][0]);
+
+  auto modelViewMatrix{glm::mat3(m_camera.m_viewMatrix * setPlanets[0].m_modelMatrix)};
   glm::mat3 normalMatrix{glm::inverseTranspose(modelViewMatrix)};
   glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
+
+  setPlanets[0].m_model.render(setPlanets[0].m_trianglesToDraw);
+
 
   glUniform1f(shininessLoc, m_shininess);
   glUniform4fv(KaLoc, 1, &m_Ka.x);
   glUniform4fv(KdLoc, 1, &m_Kd.x);
   glUniform4fv(KsLoc, 1, &m_Ks.x);
 
-  m_model.render(m_trianglesToDraw);
+  setPlanets[1].m_modelMatrix = glm::mat4(1.0);
+  setPlanets[1].m_modelMatrix = glm::translate(setPlanets[1].m_modelMatrix, glm::vec3(-0.950f, 0.5f, 0.50f));
+  setPlanets[1].m_modelMatrix = glm::rotate(setPlanets[1].m_modelMatrix, glm::radians(0.003f * n_frame), glm::vec3(0, 1, 0));
+  setPlanets[1].m_modelMatrix = glm::scale(setPlanets[1].m_modelMatrix, glm::vec3(0.17));
+  glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &setPlanets[1].m_modelMatrix[0][0]);
 
+  modelViewMatrix = glm::mat3(m_camera.m_viewMatrix * setPlanets[1].m_modelMatrix);
+  normalMatrix = glm::inverseTranspose(modelViewMatrix);
+  glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
+
+  setPlanets[1].m_model.render(setPlanets[1].m_trianglesToDraw);
+  n_frame++;
   glUseProgram(0);
+
+
 }
 
 void OpenGLWindow::paintUI() {
   abcg::OpenGLWindow::paintUI();
-
-
-  // Only in WebGL
-  #if defined(__EMSCRIPTEN__)
-    fileDialogModel.SetPwd(getAssetsPath());
-    fileDialogTex.SetPwd(getAssetsPath() + "/maps");
-  #endif
-   // Slider will be stretched horizontally
-  m_trianglesToDraw = m_model.getNumTriangles();
-
-  glEnable(GL_CULL_FACE);
-
-  // CW/CCW combo box
-  glFrontFace(GL_CCW);
-
-  // Projection combo box
-  auto aspect{static_cast<float>(m_viewportWidth) /
-                static_cast<float>(m_viewportHeight)};
-  m_projMatrix = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 5.0f);
-  // UV mapping box
-
-  m_mappingMode = 3;
+  {
+    auto aspect{static_cast<float>(m_viewportWidth) / static_cast<float>(m_viewportHeight)};
+    m_projMatrix = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 5.0f);
+  }
 }
 
 
 void OpenGLWindow::resizeGL(int width, int height) {
   m_viewportWidth = width;
   m_viewportHeight = height;
-
-  m_trackBallModel.resizeViewport(width, height);
-  m_trackBallLight.resizeViewport(width, height);
-
   m_camera.computeProjectionMatrix(width, height);
 
 }
 
 void OpenGLWindow::terminateGL() {
-  for (const auto& program : m_programs) {
-    glDeleteProgram(program);
-  }
+  glDeleteProgram(m_program);
+
 }
 
 void OpenGLWindow::update() {
-  m_modelMatrix = m_trackBallModel.getRotation();
-
-  //UPDATE
-  //m_model.update(m_trackBallModel);
   float deltaTime{static_cast<float>(getDeltaTime())};
-
-  m_viewMatrix =
-      glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f + m_zoom),
-                  glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-    // Update LookAt camera
   m_camera.dolly(m_dollySpeed * deltaTime);
   m_camera.truck(m_truckSpeed * deltaTime);
   m_camera.pan(m_panSpeed * deltaTime);
+  //m_camera.lift(m_liftSpeed * deltaTime);
 
 }
